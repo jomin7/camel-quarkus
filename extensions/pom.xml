@@ -269,6 +269,7 @@
         <module>stax</module>
         <module>stream</module>
         <module>stringtemplate</module>
+        <module>stripe</module>
         <module>swift</module>
         <module>syslog</module>
         <module>tarfile</module>

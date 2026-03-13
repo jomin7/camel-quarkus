@@ -1,0 +1,47 @@
+{
+  "name": "Create Payment Intent",
+  "request": {
+    "url": "/v1/payment_intents",
+    "method": "POST"
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json",
+      "Request-Id": "req_mock",
+      "Stripe-Version": "2020-08-27"
+    },
+    "jsonBody": {
+      "id": "pi_mock123456",
+      "object": "payment_intent",
+      "amount": 1500,
+      "amount_capturable": 0,
+      "amount_received": 0,
+      "application": null,
+      "application_fee_amount": null,
+      "canceled_at": null,
+      "cancellation_reason": null,
+      "capture_method": "automatic",
+      "client_secret": "pi_mock123456_secret_mock",
+      "confirmation_method": "automatic",
+      "created": 1234567890,
+      "currency": "usd",
+      "customer": null,
+      "description": null,
+      "invoice": null,
+      "livemode": false,
+      "metadata": {},
+      "next_action": null,
+      "on_behalf_of": null,
+      "payment_method": null,
+      "payment_method_types": ["card"],
+      "receipt_email": null,
+      "setup_future_usage": null,
+      "shipping": null,
+      "statement_descriptor": null,
+      "statement_descriptor_suffix": null,
+      "status": "requires_payment_method"
+    }
+  },
+  "uuid": "ffffffff-ffff-ffff-ffff-ffffffffffff"
+}

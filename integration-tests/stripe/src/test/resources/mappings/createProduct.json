@@ -1,0 +1,24 @@
+{
+  "name": "Create Product",
+  "request": {
+    "url": "/v1/products",
+    "method": "POST"
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "id": "prod_mock123456",
+      "object": "product",
+      "name": "Test Product",
+      "active": true,
+      "created": 1234567890,
+      "livemode": false,
+      "type": "service"
+    },
+    "transformers": ["response-template"]
+  },
+  "uuid": "55555555-5555-5555-5555-555555555555"
+}

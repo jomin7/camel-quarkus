@@ -1,0 +1,36 @@
+{
+  "name": "Create Price",
+  "request": {
+    "url": "/v1/prices",
+    "method": "POST"
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json",
+      "Request-Id": "req_mock",
+      "Stripe-Version": "2020-08-27"
+    },
+    "jsonBody": {
+      "id": "price_mock123456",
+      "object": "price",
+      "active": true,
+      "billing_scheme": "per_unit",
+      "created": 1234567890,
+      "currency": "usd",
+      "livemode": false,
+      "lookup_key": null,
+      "metadata": {},
+      "nickname": null,
+      "product": "prod_mock123456",
+      "recurring": null,
+      "tax_behavior": "unspecified",
+      "tiers_mode": null,
+      "transform_quantity": null,
+      "type": "one_time",
+      "unit_amount": 2000,
+      "unit_amount_decimal": "2000"
+    }
+  },
+  "uuid": "eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee"
+}

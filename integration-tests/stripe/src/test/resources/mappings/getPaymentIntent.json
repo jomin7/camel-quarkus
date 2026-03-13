@@ -1,0 +1,26 @@
+{
+  "name": "Get Payment Intent",
+  "request": {
+    "urlPattern": "/v1/payment_intents/.*",
+    "method": "GET"
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "id": "pi_mock123456",
+      "object": "payment_intent",
+      "amount": 1500,
+      "amount_capturable": 0,
+      "amount_received": 0,
+      "created": 1234567890,
+      "currency": "usd",
+      "livemode": false,
+      "payment_method_types": ["card"],
+      "status": "requires_payment_method"
+    }
+  },
+  "uuid": "ffffffff-ffff-ffff-ffff-fffffffffff1"
+}

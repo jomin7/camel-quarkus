@@ -1,0 +1,23 @@
+{
+  "name": "Get Refund",
+  "request": {
+    "urlPattern": "/v1/refunds/.*",
+    "method": "GET"
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "id": "re_mock123456",
+      "object": "refund",
+      "amount": 2500,
+      "charge": "ch_mock123456",
+      "created": 1234567890,
+      "currency": "usd",
+      "status": "succeeded"
+    }
+  },
+  "uuid": "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbc1"
+}

@@ -1,0 +1,32 @@
+{
+  "name": "Create Refund",
+  "request": {
+    "url": "/v1/refunds",
+    "method": "POST"
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json",
+      "Request-Id": "req_mock",
+      "Stripe-Version": "2020-08-27"
+    },
+    "jsonBody": {
+      "id": "re_mock123456",
+      "object": "refund",
+      "amount": 2500,
+      "balance_transaction": "txn_mock123456",
+      "charge": "ch_mock123456",
+      "created": 1234567890,
+      "currency": "usd",
+      "metadata": {},
+      "payment_intent": null,
+      "reason": null,
+      "receipt_number": null,
+      "source_transfer_reversal": null,
+      "status": "succeeded",
+      "transfer_reversal": null
+    }
+  },
+  "uuid": "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"
+}

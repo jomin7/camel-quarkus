@@ -1,0 +1,23 @@
+{
+  "name": "Get Product",
+  "request": {
+    "urlPathPattern": "/v1/products/.*",
+    "method": "GET"
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "id": "prod_mock123456",
+      "object": "product",
+      "name": "Test Product",
+      "active": true,
+      "created": 1234567890,
+      "livemode": false,
+      "type": "service"
+    }
+  },
+  "uuid": "66666666-6666-6666-6666-666666666666"
+}

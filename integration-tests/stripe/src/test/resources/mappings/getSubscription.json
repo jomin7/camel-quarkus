@@ -1,0 +1,27 @@
+{
+  "name": "Get Subscription",
+  "request": {
+    "urlPattern": "/v1/subscriptions/.*",
+    "method": "GET"
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "id": "sub_mock123456",
+      "object": "subscription",
+      "billing_cycle_anchor": 1234567890,
+      "cancel_at_period_end": false,
+      "created": 1234567890,
+      "current_period_end": 1237246290,
+      "current_period_start": 1234567890,
+      "customer": "cus_mock123456",
+      "livemode": false,
+      "start_date": 1234567890,
+      "status": "active"
+    }
+  },
+  "uuid": "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaba"
+}

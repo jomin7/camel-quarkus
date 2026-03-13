@@ -1,0 +1,19 @@
+{
+  "name": "Delete Customer",
+  "request": {
+    "urlPathPattern": "/v1/customers/.*",
+    "method": "DELETE"
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "id": "cus_mock123456",
+      "object": "customer",
+      "deleted": true
+    }
+  },
+  "uuid": "44444444-4444-4444-4444-444444444444"
+}

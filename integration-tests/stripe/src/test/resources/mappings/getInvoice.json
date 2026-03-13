@@ -1,0 +1,61 @@
+{
+  "name": "Get Invoice",
+  "request": {
+    "urlPattern": "/v1/invoices/.*",
+    "method": "GET"
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "id": "in_mock123456",
+      "object": "invoice",
+      "account_country": "US",
+      "account_name": "Test Account",
+      "amount_due": 999,
+      "amount_paid": 0,
+      "amount_remaining": 999,
+      "application_fee_amount": null,
+      "attempt_count": 0,
+      "attempted": false,
+      "auto_advance": false,
+      "billing_reason": "subscription_create",
+      "charge": null,
+      "collection_method": "charge_automatically",
+      "created": 1234567890,
+      "currency": "usd",
+      "customer": "cus_mock123456",
+      "customer_email": "test@example.com",
+      "customer_name": "Test Customer",
+      "default_payment_method": null,
+      "default_source": null,
+      "description": null,
+      "discount": null,
+      "due_date": null,
+      "ending_balance": null,
+      "footer": null,
+      "hosted_invoice_url": null,
+      "invoice_pdf": null,
+      "livemode": false,
+      "metadata": {},
+      "next_payment_attempt": null,
+      "number": null,
+      "paid": false,
+      "payment_intent": null,
+      "period_end": 1234567890,
+      "period_start": 1234567890,
+      "receipt_number": null,
+      "starting_balance": 0,
+      "statement_descriptor": null,
+      "status": "draft",
+      "subscription": "sub_mock123456",
+      "subtotal": 999,
+      "tax": null,
+      "total": 999,
+      "webhooks_delivered_at": null
+    }
+  },
+  "uuid": "cccccccc-cccc-cccc-cccc-cccccccccccc"
+}

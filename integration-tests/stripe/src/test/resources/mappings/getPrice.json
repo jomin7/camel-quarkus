@@ -1,0 +1,27 @@
+{
+  "name": "Get Price",
+  "request": {
+    "urlPattern": "/v1/prices/.*",
+    "method": "GET"
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "id": "price_mock123456",
+      "object": "price",
+      "active": true,
+      "billing_scheme": "per_unit",
+      "created": 1234567890,
+      "currency": "usd",
+      "livemode": false,
+      "product": "prod_mock123456",
+      "type": "one_time",
+      "unit_amount": 2000,
+      "unit_amount_decimal": "2000"
+    }
+  },
+  "uuid": "eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeef"
+}

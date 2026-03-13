@@ -1,0 +1,28 @@
+{
+  "name": "Get Charge",
+  "request": {
+    "urlPattern": "/v1/charges/.*",
+    "method": "GET"
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "id": "ch_mock123456",
+      "object": "charge",
+      "amount": 1000,
+      "amount_captured": 1000,
+      "amount_refunded": 0,
+      "captured": true,
+      "created": 1234567890,
+      "currency": "usd",
+      "livemode": false,
+      "paid": true,
+      "refunded": false,
+      "status": "succeeded"
+    }
+  },
+  "uuid": "dddddddd-dddd-dddd-dddd-ddddddddddde"
+}

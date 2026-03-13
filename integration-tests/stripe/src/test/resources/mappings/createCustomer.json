@@ -1,0 +1,42 @@
+{
+  "name": "Create Customer",
+  "request": {
+    "url": "/v1/customers",
+    "method": "POST"
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json",
+      "Request-Id": "req_mock",
+      "Stripe-Version": "2020-08-27"
+    },
+    "jsonBody": {
+      "id": "cus_mock123456",
+      "object": "customer",
+      "email": "test@example.com",
+      "name": "Test Customer",
+      "description": null,
+      "address": null,
+      "balance": 0,
+      "created": 1234567890,
+      "currency": null,
+      "default_source": null,
+      "delinquent": false,
+      "discount": null,
+      "invoice_prefix": "TEST",
+      "invoice_settings": {
+        "custom_fields": null,
+        "default_payment_method": null,
+        "footer": null
+      },
+      "livemode": false,
+      "metadata": {},
+      "phone": null,
+      "preferred_locales": [],
+      "shipping": null,
+      "tax_exempt": "none"
+    }
+  },
+  "uuid": "11111111-1111-1111-1111-111111111111"
+}

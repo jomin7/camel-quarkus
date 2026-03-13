@@ -197,6 +197,7 @@ group-10:
   - platform-http-proxy
   - platform-http-proxy-ssl
   - solr
+  - stripe
   - swift
   - weaviate
 group-11:
