@@ -79,6 +79,7 @@ on:
       - '.github/workflows/pr-doc-validation.yaml'
       - 'docs/antora.yml'
       - 'release-utils/**'
+  workflow_dispatch:
 
 concurrency:
   group: ${{ github.ref }}-${{ github.workflow }}
@@ -93,7 +94,6 @@ env:
 
 jobs:
   pre-build-checks:
-    if: github.repository == 'apache/camel-quarkus'
     runs-on: ubuntu-latest
     outputs:
       continue-build: ${{ steps.pre-build-checks.outputs.continue-build }}

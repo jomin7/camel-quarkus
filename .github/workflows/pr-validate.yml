@@ -50,6 +50,7 @@ on:
       - '.github/workflows/pr-doc-validation.yaml'
       - 'docs/antora.yml'
       - 'release-utils/**'
+  workflow_dispatch:
 
 concurrency:
   group: ${{ github.ref }}-${{ github.workflow }}
@@ -65,7 +66,6 @@ permissions:  # added using https://github.com/step-security/secure-repo
 
 jobs:
   check-format:
-    if: github.repository == 'apache/camel-quarkus'
     runs-on: ubuntu-latest
     steps:
     - name: Setup apache-snapshots profile
