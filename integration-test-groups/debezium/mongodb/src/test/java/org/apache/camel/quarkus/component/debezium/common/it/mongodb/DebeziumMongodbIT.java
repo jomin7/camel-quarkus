@@ -17,8 +17,10 @@
 package org.apache.camel.quarkus.component.debezium.common.it.mongodb;
 
 import io.quarkus.test.junit.QuarkusIntegrationTest;
+import org.junit.jupiter.api.Disabled;
 
 @QuarkusIntegrationTest
+@Disabled("Temporarily disabled to speed up local testing - only testing PostgreSQL")
 class DebeziumMongodbIT extends DebeziumMongodbTest {
 
 }

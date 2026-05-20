@@ -19,12 +19,14 @@ package org.apache.camel.quarkus.component.debezium.common.it.postgres;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.time.Duration;
 
 import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.junit.QuarkusTest;
 import io.restassured.RestAssured;
 import org.apache.camel.quarkus.test.support.debezium.AbstractDebeziumTest;
 import org.apache.camel.quarkus.test.support.debezium.Type;
+import org.awaitility.Awaitility;
 import org.eclipse.microprofile.config.Config;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -46,9 +48,19 @@ class DebeziumPostgresTest extends AbstractDebeziumTest {
     }
 
     @BeforeAll
-    public static void setUp(Config config) throws SQLException {
+    public static void setUp(Config config) {
         final String jdbcUrl = config.getValue(Type.postgres.getPropertyJdbc(), String.class);
-        connection = DriverManager.getConnection(jdbcUrl);
+        // Retry connection acquisition to handle transient container startup issues
+        Awaitility.await()
+                .atMost(Duration.ofSeconds(30))
+                .pollInterval(Duration.ofSeconds(2))
+                .untilAsserted(() -> {
+                    try {
+                        connection = DriverManager.getConnection(jdbcUrl);
+                    } catch (SQLException e) {
+                        throw new AssertionError("Failed to connect to database: " + e.getMessage(), e);
+                    }
+                });
     }
 
     @Test
@@ -60,6 +72,28 @@ class DebeziumPostgresTest extends AbstractDebeziumTest {
                 .statusCode(200)
                 .body("'database.connectionTimeZone'", is("CET"))
                 .body("'bootstrap.servers'", is(notNullValue()));
+    }
+
+    /**
+     * Test that Debezium uses KafkaOffsetBackingStore for offset storage.
+     * This verifies issue #8621 - testing Debezium with Kafka-based offset storage
+     * instead of the default file-based storage.
+     */
+    @Test
+    @Order(5)
+    public void testKafkaOffsetBackingStore() {
+        // Verify Kafka bootstrap servers are configured
+        RestAssured.get(Type.postgres.getComponent() + "/kafkaBootstrapServers")
+                .then()
+                .statusCode(200)
+                .body(not(equalTo("not-configured")))
+                .body(containsString("PLAINTEXT://"));
+
+        // Verify offset storage type is Kafka
+        RestAssured.get(Type.postgres.getComponent() + "/offsetStorageType")
+                .then()
+                .statusCode(200)
+                .body(equalTo("kafka"));
     }
 
     @AfterAll

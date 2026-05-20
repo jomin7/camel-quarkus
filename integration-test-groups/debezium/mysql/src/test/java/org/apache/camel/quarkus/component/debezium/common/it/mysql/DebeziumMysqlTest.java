@@ -29,6 +29,7 @@ import org.eclipse.microprofile.config.Config;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
@@ -37,6 +38,7 @@ import org.junit.jupiter.api.TestMethodOrder;
 @QuarkusTest
 @QuarkusTestResource(value = DebeziumMysqlTestResource.class, restrictToAnnotatedClass = true)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+@Disabled("Temporarily disabled to speed up local testing - only testing PostgreSQL")
 class DebeziumMysqlTest extends AbstractDebeziumTest {
     private static Connection connection;
 

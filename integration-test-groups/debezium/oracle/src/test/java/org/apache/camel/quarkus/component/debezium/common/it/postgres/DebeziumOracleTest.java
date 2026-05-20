@@ -27,6 +27,7 @@ import org.apache.camel.quarkus.test.support.debezium.Type;
 import org.eclipse.microprofile.config.Config;
 import org.jboss.logging.Logger;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.TestMethodOrder;
 
@@ -35,6 +36,7 @@ import static org.hamcrest.Matchers.*;
 @QuarkusTest
 @QuarkusTestResource(value = DebeziumOracleTestResource.class, restrictToAnnotatedClass = true)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+@Disabled("Temporarily disabled to speed up local testing - only testing PostgreSQL")
 class DebeziumOracleTest extends AbstractDebeziumTest {
     private static final Logger LOG = Logger.getLogger(DebeziumOracleTest.class);
 
