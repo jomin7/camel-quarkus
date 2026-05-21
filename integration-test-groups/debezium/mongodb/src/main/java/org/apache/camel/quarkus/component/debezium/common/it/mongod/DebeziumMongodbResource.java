@@ -65,6 +65,27 @@ public class DebeziumMongodbResource extends AbstractDebeziumResource {
     }
 
     @Override
+    protected String getKafkaOffsetEndpointUrl() {
+        String kafkaBootstrapServers = config.getOptionalValue("kafka.bootstrap.servers", String.class).orElse(null);
+        if (kafkaBootstrapServers == null) {
+            return null;
+        }
+        String hostname = config.getValue(Type.mongodb.getPropertyHostname(), String.class);
+        String port = config.getValue(Type.mongodb.getPropertyPort(), String.class);
+        return Type.mongodb.getComponent() + ":localhost?"
+                + "mongodbUser=" + config.getValue(Type.mongodb.getPropertyUsername(), String.class)
+                + "&mongodbPassword=" + config.getValue(Type.mongodb.getPropertyPassword(), String.class)
+                + "&mongodbConnectionString=mongodb://" + hostname + ":" + port + "/?replicaSet=my-mongo-set"
+                + "&topicPrefix=cq-testing-kafka"
+                + "&offsetStorage=org.apache.kafka.connect.storage.KafkaOffsetBackingStore"
+                + "&offsetStorageTopic=debezium-offset-storage-mongodb"
+                + "&offsetStoragePartitions=1"
+                + "&offsetStorageReplicationFactor=1"
+                + "&offsetFlushIntervalMs=1000"
+                + "&additionalProperties.bootstrap.servers=" + kafkaBootstrapServers;
+    }
+
+    @Override
     protected String getEndpointUrl(String hostname, String port, String username, String password, String databaseServerName,
             String offsetStorageFileName) {
         return Type.mongodb.getComponent() + ":localhost?"

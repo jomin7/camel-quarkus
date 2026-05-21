@@ -17,18 +17,23 @@
 package org.apache.camel.quarkus.component.debezium.common.it.postgres;
 
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import org.apache.camel.quarkus.test.support.debezium.AbstractDebeziumResource;
 import org.apache.camel.quarkus.test.support.debezium.Type;
+import org.eclipse.microprofile.config.Config;
 
 @Path("/debezium-postgres")
 @ApplicationScoped
 public class DebeziumPostgresResource extends AbstractDebeziumResource {
 
     public static final String DB_NAME = "PostgresDB";
+
+    @Inject
+    Config config;
 
     public DebeziumPostgresResource() {
         super(Type.postgres);
@@ -49,8 +54,33 @@ public class DebeziumPostgresResource extends AbstractDebeziumResource {
     }
 
     @Override
-    protected String getEndpointUrl(String hostname, String port, String username, String password, String databaseServerName,
-            String offsetStorageFileName) {
+    protected String getKafkaOffsetEndpointUrl() {
+        String kafkaBootstrapServers = config.getOptionalValue("kafka.bootstrap.servers", String.class).orElse(null);
+        if (kafkaBootstrapServers == null) {
+            return null;
+        }
+        String hostname = config.getValue(Type.postgres.getPropertyHostname(), String.class);
+        String port = config.getValue(Type.postgres.getPropertyPort(), String.class);
+        String username = config.getValue(Type.postgres.getPropertyUsername(), String.class);
+        String password = config.getValue(Type.postgres.getPropertyPassword(), String.class);
+        return Type.postgres.getComponent() + ":localhost?"
+                + "databaseHostname=" + hostname
+                + "&databasePort=" + port
+                + "&databaseUser=" + username
+                + "&databasePassword=" + password
+                + "&databaseDbname=" + DB_NAME
+                + "&topicPrefix=cq-testing-kafka"
+                + "&offsetStorage=org.apache.kafka.connect.storage.KafkaOffsetBackingStore"
+                + "&offsetStorageTopic=debezium-offset-storage-postgres"
+                + "&offsetStoragePartitions=1"
+                + "&offsetStorageReplicationFactor=1"
+                + "&offsetFlushIntervalMs=1000"
+                + "&additionalProperties.bootstrap.servers=" + kafkaBootstrapServers;
+    }
+
+    @Override
+    protected String getEndpointUrl(String hostname, String port, String username, String password,
+            String databaseServerName, String offsetStorageFileName) {
         return super.getEndpointUrl(hostname, port, username, password, databaseServerName, offsetStorageFileName)
                 + "&databaseDbname=" + DB_NAME;
     }

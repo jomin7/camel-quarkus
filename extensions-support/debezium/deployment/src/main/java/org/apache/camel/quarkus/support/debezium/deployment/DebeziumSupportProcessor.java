@@ -94,6 +94,12 @@ public class DebeziumSupportProcessor {
                 .toArray(String[]::new);
         reflectiveClasses.produce(ReflectiveClassBuildItem.builder(dtos).fields().build());
 
+        // JSON converter classes need constructors/methods for KafkaOffsetBackingStore
+        String[] jsonConverters = index.getKnownClasses().stream().map(ci -> ci.name().toString())
+                .filter(n -> n.startsWith("org.apache.kafka.connect.json"))
+                .toArray(String[]::new);
+        reflectiveClasses.produce(ReflectiveClassBuildItem.builder(jsonConverters).constructors().methods().build());
+
         dtos = index.getAllKnownImplementations(DotName.createSimple(SnapshotLock.class.getName())).stream()
                 .map(ci -> ci.name().toString())
                 .toArray(String[]::new);
@@ -102,6 +108,7 @@ public class DebeziumSupportProcessor {
         reflectiveClasses.produce(ReflectiveClassBuildItem.builder(
                 "org.apache.kafka.connect.storage.FileOffsetBackingStore",
                 "org.apache.kafka.connect.storage.MemoryOffsetBackingStore",
+                "org.apache.kafka.connect.storage.KafkaOffsetBackingStore",
                 "io.debezium.storage.kafka.history.KafkaSchemaHistory",
                 "io.debezium.relational.history.FileDatabaseHistory",
                 "io.debezium.embedded.ConvertingEngineBuilderFactory",
@@ -143,6 +150,41 @@ public class DebeziumSupportProcessor {
                 DefaultTransactionMetadataFactory.class,
                 SchemaTopicNamingStrategy.class,
                 FileSchemaHistory.class)
+                .build());
+
+        reflectiveClasses.produce(ReflectiveClassBuildItem.builder(
+                "org.apache.kafka.connect.converters.ByteArrayConverter",
+                "org.apache.kafka.connect.converters.BooleanConverter",
+                "org.apache.kafka.connect.converters.DoubleConverter",
+                "org.apache.kafka.connect.converters.FloatConverter",
+                "org.apache.kafka.connect.converters.IntegerConverter",
+                "org.apache.kafka.connect.converters.LongConverter",
+                "org.apache.kafka.connect.converters.ShortConverter")
+                .constructors()
+                .methods()
+                .build());
+
+        reflectiveClasses.produce(ReflectiveClassBuildItem.builder(
+                "org.apache.kafka.common.serialization.ByteArraySerializer",
+                "org.apache.kafka.common.serialization.ByteArrayDeserializer",
+                "org.apache.kafka.common.serialization.StringSerializer",
+                "org.apache.kafka.common.serialization.StringDeserializer")
+                .constructors()
+                .methods()
+                .build());
+
+        // Kafka client classes needed by KafkaOffsetBackingStore at runtime.
+        // KafkaBasedLog creates Admin, Producer, and Consumer instances that
+        // instantiate these via reflection (getConfiguredInstances / Utils.newInstance).
+        reflectiveClasses.produce(ReflectiveClassBuildItem.builder(
+                "org.apache.kafka.common.metrics.JmxReporter",
+                "org.apache.kafka.clients.consumer.RangeAssignor",
+                "org.apache.kafka.clients.consumer.CooperativeStickyAssignor",
+                "org.apache.kafka.common.security.authenticator.AbstractLogin$DefaultLoginCallbackHandler",
+                "org.apache.kafka.common.security.authenticator.DefaultLogin",
+                "org.apache.kafka.common.security.authenticator.SaslClientCallbackHandler")
+                .constructors()
+                .methods()
                 .build());
     }
 

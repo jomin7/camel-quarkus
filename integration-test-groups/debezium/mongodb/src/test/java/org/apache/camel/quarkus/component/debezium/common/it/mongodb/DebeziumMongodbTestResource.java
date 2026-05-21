@@ -19,8 +19,12 @@ package org.apache.camel.quarkus.component.debezium.common.it.mongodb;
 
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 
+import io.strimzi.test.container.StrimziKafkaCluster;
+import io.strimzi.test.container.StrimziKafkaContainer;
 import org.apache.camel.quarkus.test.AvailablePortFinder;
 import org.apache.camel.quarkus.test.support.debezium.AbstractDebeziumTestResource;
 import org.apache.camel.quarkus.test.support.debezium.Type;
@@ -43,12 +47,42 @@ public class DebeziumMongodbTestResource extends AbstractDebeziumTestResource<Ge
     private static final String DB_INIT_SCRIPT = "/initMongodb.txt";
     private static final int DB_PORT = AvailablePortFinder.getNextAvailable();
     private static final String MONGO_IMAGE_NAME = ConfigProvider.getConfig().getValue("mongodb.container.image", String.class);
+    private static final String KAFKA_IMAGE_NAME = ConfigProvider.getConfig().getValue("kafka.container.image", String.class);
+
+    private StrimziKafkaCluster kafkaCluster;
+    private StrimziKafkaContainer kafkaContainer;
 
     public DebeziumMongodbTestResource() {
         super(Type.mongodb);
     }
 
     private final Network net = Network.newNetwork();
+
+    @Override
+    public Map<String, String> start() {
+        try {
+            // Start Kafka cluster first (defaults to 1 broker)
+            LOG.info("Starting Kafka cluster");
+            kafkaCluster = new StrimziKafkaCluster.StrimziKafkaClusterBuilder()
+                    .withImage(KAFKA_IMAGE_NAME)
+                    .build();
+            kafkaCluster.start();
+            kafkaContainer = kafkaCluster.getBrokers().stream().findFirst()
+                    .orElseThrow(() -> new RuntimeException("No Kafka broker available"));
+            LOG.infof("Kafka cluster started with bootstrap servers: %s", kafkaContainer.getBootstrapServers());
+
+            // Start MongoDB container
+            Map<String, String> config = new HashMap<>(super.start());
+
+            // Add Kafka bootstrap servers to configuration
+            config.put("kafka.bootstrap.servers", kafkaContainer.getBootstrapServers());
+
+            return config;
+        } catch (Exception e) {
+            LOG.error("Failed to start containers", e);
+            throw new RuntimeException("Error starting test containers", e);
+        }
+    }
 
     @Override
     protected GenericContainer<?> createContainer() {
@@ -70,8 +104,28 @@ public class DebeziumMongodbTestResource extends AbstractDebeziumTestResource<Ge
 
     @Override
     public void stop() {
-        super.stop();
-        AvailablePortFinder.releaseReservedPorts();
+        try {
+            // Stop MongoDB first
+            super.stop();
+        } catch (Exception e) {
+            LOG.warn("Error stopping MongoDB container", e);
+        }
+
+        try {
+            // Stop Kafka cluster
+            if (kafkaCluster != null) {
+                LOG.info("Stopping Kafka cluster");
+                kafkaCluster.stop();
+            }
+        } catch (Exception e) {
+            LOG.warn("Error stopping Kafka cluster", e);
+        }
+
+        try {
+            AvailablePortFinder.releaseReservedPorts();
+        } catch (Exception e) {
+            // ignored
+        }
     }
 
     private void execScriptInContainer() throws Exception {

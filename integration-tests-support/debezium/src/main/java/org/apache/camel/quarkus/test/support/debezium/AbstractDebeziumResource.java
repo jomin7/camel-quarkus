@@ -66,6 +66,33 @@ public abstract class AbstractDebeziumResource {
                 .collect(Collectors.toMap(Map.Entry::getKey, e -> (String) e.getValue()));
     }
 
+    @Path("/kafkaBootstrapServers")
+    @GET
+    @Produces(MediaType.TEXT_PLAIN)
+    public String kafkaBootstrapServers() {
+        String servers = config.getOptionalValue("kafka.bootstrap.servers", String.class).orElse(null);
+        return servers != null ? servers : "not-available";
+    }
+
+    @Path("/receiveViaKafkaOffset")
+    @GET
+    @Produces(MediaType.TEXT_PLAIN)
+    public String receiveViaKafkaOffset() {
+        String kafkaEndpointUrl = getKafkaOffsetEndpointUrl();
+        if (kafkaEndpointUrl == null) {
+            return null;
+        }
+        Exchange exchange = consumerTemplate.receive(kafkaEndpointUrl, TIMEOUT);
+        if (exchange == null) {
+            return null;
+        }
+        return exchange.getIn().getBody(String.class);
+    }
+
+    protected String getKafkaOffsetEndpointUrl() {
+        return null;
+    }
+
     protected String getEndpointUrl(String hostname, String port, String username, String password, String databaseServerName,
             String offsetStorageFileName) {
         return type.getComponent() + ":localhost?"

@@ -17,22 +17,56 @@
 
 package org.apache.camel.quarkus.component.debezium.common.it.postgres;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import io.strimzi.test.container.StrimziKafkaCluster;
+import io.strimzi.test.container.StrimziKafkaContainer;
 import org.apache.camel.quarkus.test.support.debezium.AbstractDebeziumTestResource;
 import org.apache.camel.quarkus.test.support.debezium.Type;
 import org.eclipse.microprofile.config.ConfigProvider;
+import org.jboss.logging.Logger;
 import org.testcontainers.postgresql.PostgreSQLContainer;
 import org.testcontainers.utility.DockerImageName;
 
 public class DebeziumPostgresTestResource extends AbstractDebeziumTestResource<PostgreSQLContainer> {
 
+    private static final Logger LOG = Logger.getLogger(DebeziumPostgresTestResource.class);
+
     public static final String DB_USERNAME = "postgres";
     public static final String DB_PASSWORD = "changeit";
     private static final String POSTGRES_IMAGE = ConfigProvider.getConfig().getValue("postgres-debezium.container.image",
             String.class);
+    private static final String KAFKA_IMAGE_NAME = ConfigProvider.getConfig().getValue("kafka.container.image",
+            String.class);
     private static final int DB_PORT = 5432;
+
+    private StrimziKafkaCluster kafkaCluster;
+    private StrimziKafkaContainer kafkaContainer;
 
     public DebeziumPostgresTestResource() {
         super(Type.postgres);
+    }
+
+    @Override
+    public Map<String, String> start() {
+        try {
+            LOG.info("Starting Kafka cluster");
+            kafkaCluster = new StrimziKafkaCluster.StrimziKafkaClusterBuilder()
+                    .withImage(KAFKA_IMAGE_NAME)
+                    .build();
+            kafkaCluster.start();
+            kafkaContainer = kafkaCluster.getBrokers().stream().findFirst()
+                    .orElseThrow(() -> new RuntimeException("No Kafka broker available"));
+            LOG.infof("Kafka cluster started with bootstrap servers: %s", kafkaContainer.getBootstrapServers());
+
+            Map<String, String> config = new HashMap<>(super.start());
+            config.put("kafka.bootstrap.servers", kafkaContainer.getBootstrapServers());
+            return config;
+        } catch (Exception e) {
+            LOG.error("Failed to start containers", e);
+            throw new RuntimeException("Error starting test containers", e);
+        }
     }
 
     @Override
@@ -44,6 +78,24 @@ public class DebeziumPostgresTestResource extends AbstractDebeziumTestResource<P
                 .withPassword(DB_PASSWORD)
                 .withDatabaseName(DebeziumPostgresResource.DB_NAME)
                 .withInitScript("initPostgres.sql");
+    }
+
+    @Override
+    public void stop() {
+        try {
+            super.stop();
+        } catch (Exception e) {
+            LOG.warn("Error stopping Postgres container", e);
+        }
+
+        try {
+            if (kafkaCluster != null) {
+                LOG.info("Stopping Kafka cluster");
+                kafkaCluster.stop();
+            }
+        } catch (Exception e) {
+            LOG.warn("Error stopping Kafka cluster", e);
+        }
     }
 
     @Override
