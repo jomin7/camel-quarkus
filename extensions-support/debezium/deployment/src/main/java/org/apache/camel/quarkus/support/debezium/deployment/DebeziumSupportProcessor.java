@@ -51,10 +51,8 @@ import io.quarkus.deployment.builditem.CombinedIndexBuildItem;
 import io.quarkus.deployment.builditem.IndexDependencyBuildItem;
 import io.quarkus.deployment.builditem.nativeimage.NativeImageResourceBuildItem;
 import io.quarkus.deployment.builditem.nativeimage.ReflectiveClassBuildItem;
-import io.quarkus.deployment.builditem.nativeimage.RuntimeInitializedClassBuildItem;
 import io.quarkus.gizmo.Gizmo;
 import org.apache.camel.quarkus.support.debezium.DebeziumComponentObserver;
-import org.apache.kafka.common.security.authenticator.SaslClientAuthenticator;
 import org.apache.kafka.connect.json.JsonConverter;
 import org.apache.kafka.connect.source.SourceTask;
 import org.jboss.jandex.DotName;
@@ -72,11 +70,6 @@ public class DebeziumSupportProcessor {
     void addDependencies(BuildProducer<IndexDependencyBuildItem> indexDependency) {
         indexDependency.produce(new IndexDependencyBuildItem("org.apache.kafka", "connect-json"));
         indexDependency.produce(new IndexDependencyBuildItem("io.debezium", "debezium-api"));
-    }
-
-    @BuildStep
-    RuntimeInitializedClassBuildItem runtimeInitializedClasses() {
-        return new RuntimeInitializedClassBuildItem(SaslClientAuthenticator.class.getName());
     }
 
     @BuildStep
@@ -121,7 +114,6 @@ public class DebeziumSupportProcessor {
         reflectiveClasses.produce(ReflectiveClassBuildItem.builder(
                 DebeziumEngine.BuilderFactory.class,
                 ConvertingAsyncEngineBuilderFactory.class,
-                SaslClientAuthenticator.class,
                 JsonConverter.class,
                 DefaultTransactionMetadataFactory.class,
                 SchemaTopicNamingStrategy.class,
@@ -164,28 +156,6 @@ public class DebeziumSupportProcessor {
                 .methods()
                 .build());
 
-        reflectiveClasses.produce(ReflectiveClassBuildItem.builder(
-                "org.apache.kafka.common.serialization.ByteArraySerializer",
-                "org.apache.kafka.common.serialization.ByteArrayDeserializer",
-                "org.apache.kafka.common.serialization.StringSerializer",
-                "org.apache.kafka.common.serialization.StringDeserializer")
-                .constructors()
-                .methods()
-                .build());
-
-        // Kafka client classes needed by KafkaOffsetBackingStore at runtime.
-        // KafkaBasedLog creates Admin, Producer, and Consumer instances that
-        // instantiate these via reflection (getConfiguredInstances / Utils.newInstance).
-        reflectiveClasses.produce(ReflectiveClassBuildItem.builder(
-                "org.apache.kafka.common.metrics.JmxReporter",
-                "org.apache.kafka.clients.consumer.RangeAssignor",
-                "org.apache.kafka.clients.consumer.CooperativeStickyAssignor",
-                "org.apache.kafka.common.security.authenticator.AbstractLogin$DefaultLoginCallbackHandler",
-                "org.apache.kafka.common.security.authenticator.DefaultLogin",
-                "org.apache.kafka.common.security.authenticator.SaslClientCallbackHandler")
-                .constructors()
-                .methods()
-                .build());
     }
 
     @BuildStep

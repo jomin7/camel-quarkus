@@ -1,0 +1,50 @@
+name: Manual Debezium Native Test
+
+on:
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: 'Branch to test'
+        required: true
+        default: 'main'
+        type: string
+
+env:
+  CQ_MAVEN_ARGS: -V -ntp -e
+
+jobs:
+  debezium-native-test:
+    name: Debezium Grouped Native Test
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.branch }}
+          fetch-depth: 0
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+          cache: 'maven'
+
+      - name: Build and Install Debezium Dependencies
+        run: |
+          ./mvnw ${CQ_MAVEN_ARGS} clean install -Dquickly -DskipTests \
+            -pl integration-tests/debezium-grouped -am
+
+      - name: Run Native Tests
+        run: |
+          ./mvnw ${CQ_MAVEN_ARGS} clean verify \
+            -Dformatter.skip -Dimpsort.skip -Denforcer.skip \
+            -Dquarkus.native.container-build=true \
+            -Dquarkus.native.builder-image.pull=missing \
+            -Dquarkus.log.category.\"org.apache.kafka.connect\".level=DEBUG \
+            -Dquarkus.log.category.\"org.apache.kafka.common\".level=DEBUG \
+            -Dquarkus.log.category.\"io.debezium\".level=DEBUG \
+            -Pnative,docker \
+            -pl integration-tests/debezium-grouped
