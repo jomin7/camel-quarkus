@@ -70,6 +70,7 @@ public class DebeziumPostgresResource extends AbstractDebeziumResource {
                 + "&databasePassword=" + password
                 + "&databaseDbname=" + DB_NAME
                 + "&topicPrefix=cq-testing-kafka"
+                + "&slotName=debezium_kafka"
                 + "&offsetStorage=org.apache.kafka.connect.storage.KafkaOffsetBackingStore"
                 + "&offsetStorageTopic=debezium-offset-storage-postgres"
                 + "&offsetStoragePartitions=1"

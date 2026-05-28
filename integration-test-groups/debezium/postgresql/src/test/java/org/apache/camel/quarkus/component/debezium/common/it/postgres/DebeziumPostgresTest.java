@@ -25,6 +25,7 @@ import java.util.UUID;
 import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.junit.QuarkusTest;
 import io.restassured.RestAssured;
+import org.apache.camel.quarkus.component.debezium.common.it.SharedKafkaTestResource;
 import org.apache.camel.quarkus.test.support.debezium.AbstractDebeziumTest;
 import org.apache.camel.quarkus.test.support.debezium.Type;
 import org.awaitility.Awaitility;
@@ -41,6 +42,7 @@ import static org.hamcrest.Matchers.*;
 
 @QuarkusTest
 @QuarkusTestResource(value = DebeziumPostgresTestResource.class, restrictToAnnotatedClass = true)
+@QuarkusTestResource(SharedKafkaTestResource.class)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class DebeziumPostgresTest extends AbstractDebeziumTest {
     private static Connection connection;

@@ -29,6 +29,7 @@ import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.result.DeleteResult;
 import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.junit.QuarkusTest;
+import org.apache.camel.quarkus.component.debezium.common.it.SharedKafkaTestResource;
 import org.apache.camel.quarkus.test.support.debezium.AbstractDebeziumTest;
 import org.apache.camel.quarkus.test.support.debezium.Type;
 import org.awaitility.Awaitility;
@@ -55,6 +56,7 @@ import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 @QuarkusTest
 @QuarkusTestResource(value = DebeziumMongodbTestResource.class, restrictToAnnotatedClass = true)
+@QuarkusTestResource(SharedKafkaTestResource.class)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class DebeziumMongodbTest extends AbstractDebeziumTest {
     private static MongoClient mongoClient;

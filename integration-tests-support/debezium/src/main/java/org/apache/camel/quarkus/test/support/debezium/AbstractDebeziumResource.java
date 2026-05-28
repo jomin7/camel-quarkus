@@ -27,6 +27,7 @@ import jakarta.ws.rs.core.MediaType;
 import org.apache.camel.CamelContext;
 import org.apache.camel.ConsumerTemplate;
 import org.apache.camel.Exchange;
+import org.apache.camel.PollingConsumer;
 import org.apache.camel.component.debezium.DebeziumConstants;
 import org.apache.camel.component.debezium.DebeziumEndpoint;
 import org.eclipse.microprofile.config.Config;
@@ -39,6 +40,7 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
  */
 public abstract class AbstractDebeziumResource {
     private final Type type;
+    private volatile PollingConsumer kafkaOffsetConsumer;
 
     @ConfigProperty(name = "test.debezium.timeout", defaultValue = "10000")
     long TIMEOUT;
@@ -82,11 +84,26 @@ public abstract class AbstractDebeziumResource {
         if (kafkaEndpointUrl == null) {
             return null;
         }
-        Exchange exchange = consumerTemplate.receive(kafkaEndpointUrl, TIMEOUT);
+        if (kafkaOffsetConsumer == null) {
+            initKafkaOffsetConsumer(kafkaEndpointUrl);
+        }
+        Exchange exchange = kafkaOffsetConsumer.receive(TIMEOUT);
         if (exchange == null) {
             return null;
         }
         return exchange.getIn().getBody(String.class);
+    }
+
+    private synchronized void initKafkaOffsetConsumer(String endpointUrl) {
+        if (kafkaOffsetConsumer != null) {
+            return;
+        }
+        try {
+            kafkaOffsetConsumer = camelContext.getEndpoint(endpointUrl).createPollingConsumer();
+            kafkaOffsetConsumer.start();
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to start Kafka offset consumer for " + type.name(), e);
+        }
     }
 
     protected String getKafkaOffsetEndpointUrl() {

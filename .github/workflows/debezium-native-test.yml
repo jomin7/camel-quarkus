@@ -1,4 +1,4 @@
-name: Manual Debezium Native Test
+name: Manual Debezium Native Test (CI group-04 simulation)
 
 on:
   workflow_dispatch:
@@ -11,12 +11,13 @@ on:
 
 env:
   CQ_MAVEN_ARGS: -V -ntp -e
+  TESTCONTAINERS_RYUK_DISABLED: true
 
 jobs:
   debezium-native-test:
-    name: Debezium Grouped Native Test
+    name: Native Tests - group-04 (Debezium)
     runs-on: ubuntu-latest
-    timeout-minutes: 90
+    timeout-minutes: 180
 
     steps:
       - name: Checkout code
@@ -25,6 +26,14 @@ jobs:
           ref: ${{ github.event.inputs.branch }}
           fetch-depth: 0
 
+      - name: Reclaim Disk Space
+        run: |
+          echo "=== Before ==="
+          df -h /
+          sudo rm -rf /usr/local/lib/android /usr/share/dotnet /opt/ghc /usr/local/share/boost
+          echo "=== After ==="
+          df -h /
+
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
@@ -32,19 +41,19 @@ jobs:
           java-version: '17'
           cache: 'maven'
 
-      - name: Build and Install Debezium Dependencies
+      - name: Build and Install Dependencies
         run: |
           ./mvnw ${CQ_MAVEN_ARGS} clean install -Dquickly -DskipTests \
-            -pl integration-tests/debezium-grouped -am
+            -pl integration-tests/arangodb,integration-tests/debezium-grouped,integration-tests/couchdb,integration-tests/influxdb,integration-tests/jms-qpid-amqp-client,integration-tests/jpa,integration-tests/jta,integration-tests/kudu,integration-tests/leveldb,integration-tests/mdc,integration-tests/micrometer,integration-tests/minio,integration-tests/mongodb-grouped,integration-tests/mybatis,integration-tests/observability-services,integration-tests/sjms-artemis-client \
+            -am
 
-      - name: Run Native Tests
+      - name: Native Tests - group-04
+        env:
+          MAVEN_OPTS: -Xmx3000m
         run: |
           ./mvnw ${CQ_MAVEN_ARGS} clean verify \
             -Dformatter.skip -Dimpsort.skip -Denforcer.skip \
-            -Dquarkus.native.container-build=true \
             -Dquarkus.native.builder-image.pull=missing \
-            -Dquarkus.log.category.\"org.apache.kafka.connect\".level=DEBUG \
-            -Dquarkus.log.category.\"org.apache.kafka.common\".level=DEBUG \
-            -Dquarkus.log.category.\"io.debezium\".level=DEBUG \
-            -Pnative,docker \
-            -pl integration-tests/debezium-grouped
+            -Pnative,docker,ci \
+            --fail-at-end \
+            -pl integration-tests/arangodb,integration-tests/debezium-grouped,integration-tests/couchdb,integration-tests/influxdb,integration-tests/jms-qpid-amqp-client,integration-tests/jpa,integration-tests/jta,integration-tests/kudu,integration-tests/leveldb,integration-tests/mdc,integration-tests/micrometer,integration-tests/minio,integration-tests/mongodb-grouped,integration-tests/mybatis,integration-tests/observability-services,integration-tests/sjms-artemis-client
