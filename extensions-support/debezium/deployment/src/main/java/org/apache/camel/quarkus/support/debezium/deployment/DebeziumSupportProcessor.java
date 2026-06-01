@@ -69,6 +69,7 @@ public class DebeziumSupportProcessor {
     @BuildStep
     void addDependencies(BuildProducer<IndexDependencyBuildItem> indexDependency) {
         indexDependency.produce(new IndexDependencyBuildItem("org.apache.kafka", "connect-json"));
+        indexDependency.produce(new IndexDependencyBuildItem("org.apache.kafka", "connect-runtime"));
         indexDependency.produce(new IndexDependencyBuildItem("io.debezium", "debezium-api"));
     }
 
@@ -143,14 +144,12 @@ public class DebeziumSupportProcessor {
                 FileSchemaHistory.class)
                 .build());
 
-        reflectiveClasses.produce(ReflectiveClassBuildItem.builder(
-                "org.apache.kafka.connect.converters.ByteArrayConverter",
-                "org.apache.kafka.connect.converters.BooleanConverter",
-                "org.apache.kafka.connect.converters.DoubleConverter",
-                "org.apache.kafka.connect.converters.FloatConverter",
-                "org.apache.kafka.connect.converters.IntegerConverter",
-                "org.apache.kafka.connect.converters.LongConverter",
-                "org.apache.kafka.connect.converters.ShortConverter")
+        String[] converterImpls = index
+                .getAllKnownImplementors(DotName.createSimple("org.apache.kafka.connect.storage.Converter"))
+                .stream()
+                .map(ci -> ci.name().toString())
+                .toArray(String[]::new);
+        reflectiveClasses.produce(ReflectiveClassBuildItem.builder(converterImpls)
                 .constructors()
                 .methods()
                 .build());
